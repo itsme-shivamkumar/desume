@@ -32,6 +32,9 @@
 - html2canvas library
 
 ## Screenshots
-![](https://github.com/itsme-shivamkumar/desume/blob/b75762164d2ffa780dc996b5dafc914981aed8fd/screenshots/p2.gif)
+![]()
+![]()
+![]()
+![]()
 ## Contributing
 This project was developed by a single developer [itsme-shivamkumar](https://github.com/itsme-shivamkumar), but contributions are always welcome. Please submit a pull request for any changes or fixes.
