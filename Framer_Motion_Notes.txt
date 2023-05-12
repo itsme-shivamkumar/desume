@@ -1,0 +1,196 @@
+## installation
+npm i framer-motion
+
+## importing
+import {motion} from 'framer-motion'
+
+## using properties
+// tag can be any tag (even self closing tags are allowed)
+<motion.tag
+    initial={{x:-100, y:'20%'}}
+    animate={{fontSize:50,color:'#303030', x:'50vw', y:-200}}
+    transition={{delay:0.2, duration: 2, type:'spring', stiffness:120 }}
+    whileHover={{opacity:0.9, scale: 1.1, originX:0}}
+    whileTap={{scale:1.2}}
+    whileInView={{opacity:1}}
+    viewPort={{once:true}}
+>
+    {children}
+</motion.tag>
+
+## using variants
+const myVariant={
+    hidden:{
+        opacity:0,
+        x:-100,
+        transition:{
+            type: 'spring',
+            mass: 0.4,
+            damping: 8
+        }
+    }
+    visibe{
+        opacity:1,
+        x:0,
+        transition:{
+            type:'tween',
+            delay:0.2,
+        }
+        when: "beforeChildren", // transistion will occur before the children transistion
+        staggerChildren: 0.4 // transition delay between different children's transistion
+    }
+}
+<motion.div
+    variants={myVariant}
+    initial="hidden"
+    animate="visible"
+>
+    {children}
+</motion.div>
+
+## keyframes and animation (use array instead of values)
+const buttonVariant={
+    hover:{
+        x:[-10,10,-20,20],
+        transistion:{
+            yoyo: 10 // it will animate the x keyframes 10 times we can use Infinity also
+        }
+    }
+}
+
+## AnimatePresence // to apply animation on elements going out of the DOM
+import {AnimatePresence} from 'framer-motion'
+<AnimatePresence>
+    <motion.div
+        exit={{opacity:0, y:-1000}}
+    >
+        {children}
+    </motion.div>
+</AnimatePresence>
+
+## Animating the routes // to apply animation wheneven a new page is showed
+
+// it is a 3 step process -> 
+// 1. wrapping the <Switch> with <AnimatePresence> tag
+// 2. to let Switch know whenever the route is changing by using useLocation() hook from 'react-router-dom'
+// 3. adding exit property on all the parent motion.div with some animation
+
+> Inside App.js
+import {Switch,Route,useLocation} from 'react-router-dom'
+import {AnimatePresence} from 'framer-motion'
+const location=useLocation();
+return(
+    <>
+        <AnimatePresence exitBeforeEnter>
+            <Switch location={location} key={location.key} >
+                <Route path="/">
+                    <Main/>
+                </Route>
+                <Route path="/about">
+                    <About/>
+                </Route>
+            </Switch>
+        </AnimatePresence>
+    </>
+)
+> Main.js and About.js wrap the main tag with motion and add exit property
+const myVariant={
+    hover:{
+
+    }
+    visibe:{
+
+    }
+    ...
+    exit:{
+        x:-1000,
+        transistion:{
+            ease:'easeInOut'
+        }
+    }
+}
+return (
+    <motion.div
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+    >
+        {children}
+    </motion.div>
+)
+
+## to perform something(e.g. setNotificationVisibility(false)) after the route changes after the prev and before the next route
+## we can use onExitComplete funtionality of AnimatePresence which is wrapped on Switch as 
+<AnimatePresence exitBeforeEnter onExitComplete={()=>setNotificationVisibility(false)}>
+    <Switch location={location} key={location.key}>
+        ...
+    </Switch>
+</AnimatePresence>
+
+## to animate svgs use pathLength from 0 to 1 e.g.
+const myVariant={
+    hidden:{
+        rotate:-180,
+        pathLength:0,
+    },
+    visibe:{
+        rotate:0,
+        pathLength:1,
+        transistion:{
+            duration:1,
+            ease:"easeOut",
+        }
+    }
+}
+
+## to cycle between different animations say [animation1, animation2, ...] we can use 
+## useCycle() hook from 'framer-motion' e.g.
+> Loader.js
+import {motion,useCycle} from 'framer-motion'
+const myVariant={
+    animation1:{
+        ...
+    }
+    animation2:{
+        ...
+    }
+}
+const Loader=({children})=>{
+    const [animation,cycleAnimation]=useCycle([animation1,animation2,...]);
+    return(
+        <>
+        <motion.div
+            variants={myVariant}
+            initial="hidden"
+            animate={animation}
+        >
+            {children}
+        </motion.div>
+        <button onClick={()=>cycleAnimation()}>Click to change animation</button>
+        </>
+    );
+}
+
+## to drag an motion element
+<motion.div
+    drag
+    dragConstraints={{left:0, top:0, bottom: 50, right: 0}}
+    dragElastic={0.7} // more the number more easy it will be to drag
+>
+    ...
+</motion.div>
+
+## using scroll-linked animation
+import {motion, useScroll} from 'framer-motion'
+export const CircleIndicator=()=>{
+    const {scrollYProgress}=useScroll();
+    return(
+        <motion.path
+            d="M 0, 20 a 20, 20 0 1,0 40,0 a 20, 20 0 1,0 -40,0"
+            style={{ pathLength: scrollYProgress }}
+        />
+    );
+}
+
+## To automatically animate the layout of a motion component when its size or position changes, give it a layout prop.
+e.g. <motion.div layout />
